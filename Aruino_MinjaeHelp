@@ -1,0 +1,68 @@
+#define trigPin 13
+#define echoPin 12
+
+extern volatile unsigned long timer0_millis; //타이머 함수를 쓰기위한 선언부분
+
+void setup()
+{
+  Serial.begin (9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+} 
+
+long microsecondsToInches(long microseconds)
+{
+
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds)
+{
+
+  return microseconds / 29 / 2;
+}
+//위에 대부분이 초음파센서를 사용하기 위한 부분들
+
+void loop() {
+
+  long duration, inches, cm;
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  duration = pulseIn(echoPin, HIGH);
+  
+
+  inches = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+  
+  //Serial.print(inches);
+  //Serial.print("inch, ");
+  Serial.print(cm);
+  Serial.println(" cm");
+  
+  ///======cm에 해당되는 값들을 바꿔서 적용하시면 됩니다============/////
+  // 8.0cm 이내에 물체가 인식되면 타이머가 작동X, 그 반대의 경우에는 1초씩 타이머가 차서 5초가되면 loop문 정지
+  
+  if( cm < 8.0) { 
+    timer0_millis = 0;
+    Serial.print("millis : ");
+    Serial.println(timer0_millis); //제대로 작동하는지 확인하기 위해 넣은 print문이니 삭제해도됩니다.
+  }
+  else if(cm >= 8.0) {
+    unsigned long time1 = millis() / 1000;
+    //delay(1000);
+    Serial.print("millis : ");
+    Serial.println(time1);
+    
+    if(time1 == 5) {
+      Serial.println("장비를 정지합니다.");
+      exit(0);
+    }
+  }
+  
+  delay(500); 
+
+}
